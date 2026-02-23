@@ -20,13 +20,13 @@ uploaded_file = st.file_uploader(
 def load_model():
     
     model = CNN()
-    model.load_state_dict(torch.load("modelo_enfermades_papa.pth"))
+    model.load_state_dict(torch.load("modelo_enfermades_papa.pth"),map_location=torch.device("cpu"))
    
    
     return model
 
 model = load_model()
-model.to('cpu')
+
 # ---------------------------
 # PREDICCIÓN
 # ---------------------------
