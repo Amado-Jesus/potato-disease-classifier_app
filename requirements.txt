@@ -4,5 +4,4 @@ seaborn==0.13.2
 numpy==1.26.4
 torchvision==0.20.0
 matplotlib
-pillow
 PIL
