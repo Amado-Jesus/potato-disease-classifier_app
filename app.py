@@ -26,6 +26,7 @@ def load_model():
     return model
 
 model = load_model()
+model.to('cpu')
 # ---------------------------
 # PREDICCIÓN
 # ---------------------------
