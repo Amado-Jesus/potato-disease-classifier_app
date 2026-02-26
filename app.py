@@ -7,7 +7,7 @@ from utils import *
 
 
 st.title("🥔 Clasificador de enfermedades del cultivo de la  papa")
-st.write("Sube una imagen de una hoja para obtener la predicción del modelo.")
+st.write("Sube una imagen del melanoma  para obtener la predicción del modelo.")
 
 uploaded_file = st.file_uploader(
     "Selecciona una imagen",
