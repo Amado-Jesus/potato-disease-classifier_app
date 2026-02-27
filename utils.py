@@ -7,47 +7,71 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-class CNN(nn.Module):
-    def __init__(self):
+
+class ResidualBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, stride=1):
         super().__init__()
-
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 128, 3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(128, 64, 3, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(64, 32, 3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-
-            nn.Conv2d(32, 16, 3, padding=1),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.MaxPool2d(2)
-            
-        )
-
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.LazyLinear(64),
-            nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(64,3)
-        )
+        
+        self.conv1 = nn.Conv2d(in_channels, out_channels, 
+                               kernel_size=3, stride=stride, padding=1)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.relu = nn.ReLU(inplace=True)
+        
+        self.conv2 = nn.Conv2d(out_channels, out_channels, 
+                               kernel_size=3, stride=1, padding=1)
+        self.bn2 = nn.BatchNorm2d(out_channels)
+        
+        # Si cambian dimensiones, ajustamos con conv 1x1
+        self.skip = nn.Sequential()
+        if stride != 1 or in_channels != out_channels:
+            self.skip = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, 
+                          kernel_size=1, stride=stride),
+                nn.BatchNorm2d(out_channels)
+            )
 
     def forward(self, x):
-        x = self.features(x)
-        x = self.classifier(x)
+        identity = self.skip(x)
+        
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+        
+        out = self.conv2(out)
+        out = self.bn2(out)
+        
+        out += identity
+        out = self.relu(out)
+        
+        return out
+
+
+class CNN(nn.Module):
+    def __init__(self, num_classes=3):
+        super().__init__()
+        
+        self.layer1 = ResidualBlock(3, 128)
+        self.layer2 = ResidualBlock(128, 64, stride=2)
+        self.layer3 = ResidualBlock(64, 64, stride=2)
+        self.layer4 = ResidualBlock(64, 64, stride=2)
+        self.layer5 = ResidualBlock(64,32,stride = 2)
+        
+        self.pool = nn.AdaptiveAvgPool2d((1,1))
+        self.fc = nn.Linear(32, num_classes)
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        x = self.layer5(x)
+        
+        x = self.pool(x)              
+        x = torch.flatten(x, 1)       
+        
+        x = self.fc(x)                
+        
         return x
-
-
 
 val_transforms = transforms.Compose([
     transforms.Resize(256),           # Mismo resize
