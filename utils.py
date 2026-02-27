@@ -134,7 +134,7 @@ def predict(img, model,transforms, device='cpu'):
              color='white')
     
     # 📊 DERECHA: Gráfico de barras de probabilidades
-    colors = ['#4CAF50' if i == pred_idx else '#ff0000' for i in sorted_indices]
+    colors = ['#4CAF50' if i == pred_idx else '#9b9b9b' for i in sorted_indices]
     bars = ax2.barh(range(len(sorted_probs)), sorted_probs * 100, color=colors, edgecolor='black', linewidth=0.5)
     
     # Configurar ejes
