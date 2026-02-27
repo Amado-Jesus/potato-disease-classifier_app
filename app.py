@@ -21,7 +21,7 @@ def load_model():
     
     model = CNN()
     model.load_state_dict(
-    torch.load("modelo_enfermades_papa.pth", map_location=torch.device("cpu"))
+    torch.load("potatoes_residualCNN.pth", map_location=torch.device("cpu"))
 )
     
    
